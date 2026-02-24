@@ -26,6 +26,8 @@ jobs:
           name: open-next-build
           path: .open-next/
           retention-days: 1
+          include-hidden-files: true
+          if-no-files-found: error
 
   deploy:
     runs-on: ubuntu-latest
