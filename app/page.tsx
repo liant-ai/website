@@ -149,7 +149,7 @@ export default function HomePage() {
             <Link href="/docs" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
               Docs
             </Link>
-            <Link href="https://github.com/liant-ai/liant" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
+            <Link href="https://github.com/liant-ai/defuse" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
               GitHub
             </Link>
           </nav>
@@ -195,7 +195,7 @@ export default function HomePage() {
               </Link>
               <span className="text-border">|</span>
               <Link
-                href="https://github.com/liant-ai/liant"
+                href="https://github.com/liant-ai/defuse"
                 className="group text-sm font-medium text-muted hover:text-foreground transition-colors"
               >
                 Source code <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">↗</span>
@@ -307,7 +307,7 @@ export default function HomePage() {
             liant — that which binds.
           </p>
           <nav className="flex items-center gap-5">
-            <Link href="https://github.com/liant-ai/liant" className="text-xs text-muted hover:text-foreground transition-colors">
+            <Link href="https://github.com/liant-ai/defuse" className="text-xs text-muted hover:text-foreground transition-colors">
               GitHub
             </Link>
             <Link href="/docs" className="text-xs text-muted hover:text-foreground transition-colors">

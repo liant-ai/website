@@ -14,7 +14,7 @@ export function baseOptions(): BaseLayoutProps {
       url: '/',
     },
     links: [
-      { text: 'GitHub', url: 'https://github.com/liant-ai/liant' },
+      { text: 'GitHub', url: 'https://github.com/liant-ai/defuse' },
     ],
   };
 }
