@@ -2,73 +2,279 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-teal: var(--teal);
+  --color-teal-muted: var(--teal-muted);
+  --color-inverted: var(--inverted);
+  --color-inverted-foreground: var(--inverted-foreground);
+  --font-family-heading: var(--font-heading);
+  --font-family-body: var(--font-body);
+  --font-family-mono: var(--font-mono);
+  --radius: 0.125rem;
+}
+
+/* ─── Mosaic palette ramp ────────────────────────────────────────────────
+   OKLCH Harmonizer: APCA contrast, P3, even chroma.
+   Levels 100–500: light mode (dark-on-light). 600–900: dark mode (light-on-dark).
+   All hues share the same chroma curve at each level.
+   See internal-docs/mosaic-palette-reference.md for full documentation.
+   ───────────────────────────────────────────────────────────────────── */
+
+@supports (color: oklch(0 0 0)) {
+  :root {
+    /* ── Neutral (hue 75, chroma 0.005) — warm achromatic ──
+       Same lightness stops as the chromatic ramp so a neutral-400
+       and a teal-400 have identical APCA contrast against their bg.
+       Fixed low chroma (0.005) so they recede behind mosaic colors. ── */
+    --neutral-50:  oklch(0.98 0.005 75);
+    --neutral-100: oklch(0.95 0.005 75);
+    --neutral-200: oklch(0.87 0.005 75);
+    --neutral-300: oklch(0.78 0.005 75);
+    --neutral-400: oklch(0.68 0.005 75);
+    --neutral-500: oklch(0.57 0.005 75);
+    --neutral-600: oklch(0.68 0.005 75);
+    --neutral-700: oklch(0.78 0.005 75);
+    --neutral-800: oklch(0.87 0.005 75);
+    --neutral-900: oklch(0.95 0.005 75);
+    /* Extremes outside the harmonizer curve */
+    --neutral-950: oklch(0.13 0.005 75);
+    --neutral-975: oklch(0.17 0.005 75);
+
+    /* ── Amber (hue 75) — ochre stone ── */
+    --amber-100: oklch(0.95 0.017 75);
+    --amber-200: oklch(0.87 0.044 75);
+    --amber-300: oklch(0.78 0.080 75);
+    --amber-400: oklch(0.68 0.116 75);
+    --amber-500: oklch(0.57 0.163 75);
+    --amber-600: oklch(0.68 0.141 75);
+    --amber-700: oklch(0.78 0.119 75);
+    --amber-800: oklch(0.87 0.094 75);
+    --amber-900: oklch(0.95 0.067 75);
+
+    /* ── Teal (hue 185) — copper patina ── */
+    --teal-100: oklch(0.95 0.017 185);
+    --teal-200: oklch(0.87 0.044 185);
+    --teal-300: oklch(0.78 0.080 185);
+    --teal-400: oklch(0.68 0.116 185);
+    --teal-500: oklch(0.57 0.163 185);
+    --teal-600: oklch(0.68 0.141 185);
+    --teal-700: oklch(0.78 0.119 185);
+    --teal-800: oklch(0.87 0.094 185);
+    --teal-900: oklch(0.95 0.067 185);
+
+    /* ── Rose (hue 10) — porphyry marble ── */
+    --rose-100: oklch(0.95 0.017 10);
+    --rose-200: oklch(0.87 0.044 10);
+    --rose-300: oklch(0.78 0.080 10);
+    --rose-400: oklch(0.68 0.116 10);
+    --rose-500: oklch(0.57 0.163 10);
+    --rose-600: oklch(0.68 0.141 10);
+    --rose-700: oklch(0.78 0.119 10);
+    --rose-800: oklch(0.87 0.094 10);
+    --rose-900: oklch(0.95 0.067 10);
+
+    /* ── Terracotta (hue 35) — fired clay ── */
+    --terra-100: oklch(0.95 0.017 35);
+    --terra-200: oklch(0.87 0.044 35);
+    --terra-300: oklch(0.78 0.080 35);
+    --terra-400: oklch(0.68 0.116 35);
+    --terra-500: oklch(0.57 0.163 35);
+    --terra-600: oklch(0.68 0.141 35);
+    --terra-700: oklch(0.78 0.119 35);
+    --terra-800: oklch(0.87 0.094 35);
+    --terra-900: oklch(0.95 0.067 35);
+
+    /* ── Deep-blue (hue 260) — lapis / cobalt glass ── */
+    --blue-100: oklch(0.95 0.017 260);
+    --blue-200: oklch(0.87 0.044 260);
+    --blue-300: oklch(0.78 0.080 260);
+    --blue-400: oklch(0.68 0.116 260);
+    --blue-500: oklch(0.57 0.163 260);
+    --blue-600: oklch(0.68 0.141 260);
+    --blue-700: oklch(0.78 0.119 260);
+    --blue-800: oklch(0.87 0.094 260);
+    --blue-900: oklch(0.95 0.067 260);
+  }
+}
+
+/* ─── Semantic tokens ────────────────────────────────────────────────── */
+
 :root {
-  /* Semantic font aliases */
+  /* Fonts */
   --font-heading: var(--font-hepta-slab);
   --font-body: var(--font-atkinson-hyperlegible-next);
   --font-mono: var(--font-lekton);
 
-  /* Brand semantic tokens — hex fallbacks */
+  /* Neutrals — hex fallbacks */
   --background: #fafaf8;
   --foreground: #1a1a18;
   --muted: #737370;
+  --muted-foreground: #a3a3a0;
   --border: #e5e5e2;
-  --accent: #b8860b;
+  --surface: #f2f2ef;
+  --surface-foreground: #1a1a18;
+
+  /* Accent — hex fallbacks */
+  --accent: #c48a00;
+  --accent-hover: #a67500;
   --accent-foreground: #1a1a18;
 
-  /* Override Fumadocs variables for light mode */
+  /* Mosaic — hex fallbacks */
+  --teal: #3a8a8a;
+  --teal-muted: #60a0a0;
+  --rose: #a05858;
+  --terracotta: #a06840;
+  --deep-blue: #505088;
+
+  /* Inverted section */
+  --inverted: #1a1a18;
+  --inverted-foreground: #e5e5e2;
+
+  /* Fumadocs overrides */
   --color-fd-background: #fafaf8;
   --color-fd-foreground: #1a1a18;
-  --color-fd-primary: #b8860b;
+  --color-fd-primary: #c48a00;
   --color-fd-border: #e5e5e2;
   --color-fd-muted-foreground: #737370;
 }
 
 @supports (color: oklch(0 0 0)) {
   :root {
-    --background: oklch(0.98 0.005 75);
-    --foreground: oklch(0.13 0.005 75);
+    /* Neutrals → ramp references */
+    --background: var(--neutral-50);
+    --foreground: var(--neutral-950);
     --muted: oklch(0.55 0.005 75);
+    --muted-foreground: oklch(0.70 0.005 75);
     --border: oklch(0.90 0.005 75);
-    --accent: oklch(0.65 0.14 75);
-    --accent-foreground: oklch(0.13 0.005 75);
+    --surface: var(--neutral-100);
+    --surface-foreground: var(--neutral-950);
 
-    --color-fd-background: oklch(0.98 0.005 75);
-    --color-fd-foreground: oklch(0.13 0.005 75);
-    --color-fd-primary: oklch(0.65 0.14 75);
-    --color-fd-border: oklch(0.90 0.005 75);
-    --color-fd-muted-foreground: oklch(0.55 0.005 75);
+    /* Accent → amber ramp. Intentionally hotter than harmonizer 500 (brand primary). */
+    --accent: oklch(0.65 0.19 75);
+    --accent-hover: oklch(0.55 0.16 75);
+    --accent-foreground: var(--neutral-950);
+
+    /* Mosaic → ramp references */
+    --teal: var(--teal-500);
+    --teal-muted: var(--teal-300);
+    --rose: var(--rose-500);
+    --terracotta: var(--terra-500);
+    --deep-blue: var(--blue-500);
+
+    /* Inverted section */
+    --inverted: var(--neutral-950);
+    --inverted-foreground: var(--neutral-200);
+
+    /* Fumadocs */
+    --color-fd-background: var(--neutral-50);
+    --color-fd-foreground: var(--neutral-950);
+    --color-fd-primary: oklch(0.65 0.19 75);
+    --color-fd-border: var(--neutral-200);
+    --color-fd-muted-foreground: var(--neutral-500);
   }
 }
 
 .dark {
+  /* Neutrals — hex fallbacks */
   --background: #1a1a18;
   --foreground: #e5e5e2;
   --muted: #737370;
+  --muted-foreground: #525250;
   --border: #2e2e2b;
-  --accent: #d4a030;
-  --accent-foreground: #fafaf8;
+  --surface: #222220;
+  --surface-foreground: #e5e5e2;
 
+  /* Accent — hex fallbacks */
+  --accent: #dba020;
+  --accent-hover: #e8b830;
+  --accent-foreground: #1a1a18;
+
+  /* Mosaic — hex fallbacks */
+  --teal: #50b0b0;
+  --teal-muted: #70c0c0;
+  --rose: #c08080;
+  --terracotta: #c08060;
+  --deep-blue: #8080c0;
+
+  /* Inverted section */
+  --inverted: #f2f2ef;
+  --inverted-foreground: #1a1a18;
+
+  /* Fumadocs */
   --color-fd-background: #1a1a18;
   --color-fd-foreground: #e5e5e2;
-  --color-fd-primary: #d4a030;
+  --color-fd-primary: #dba020;
   --color-fd-border: #2e2e2b;
   --color-fd-muted-foreground: #737370;
 }
 
 @supports (color: oklch(0 0 0)) {
   .dark {
-    --background: oklch(0.13 0.005 75);
+    /* Neutrals → ramp references (dark mode: levels flip) */
+    --background: var(--neutral-950);
     --foreground: oklch(0.90 0.005 75);
     --muted: oklch(0.55 0.005 75);
+    --muted-foreground: oklch(0.40 0.005 75);
     --border: oklch(0.23 0.005 75);
-    --accent: oklch(0.74 0.12 75);
-    --accent-foreground: oklch(0.96 0.005 75);
+    --surface: var(--neutral-975);
+    --surface-foreground: oklch(0.90 0.005 75);
 
+    /* Accent → amber ramp */
+    --accent: oklch(0.74 0.17 75);
+    --accent-hover: oklch(0.80 0.19 75);
+    --accent-foreground: oklch(0.13 0.005 75);
+
+    /* Mosaic → ramp references (dark mode levels) */
+    --teal: var(--teal-600);
+    --teal-muted: var(--teal-700);
+    --rose: var(--rose-600);
+    --terracotta: var(--terra-600);
+    --deep-blue: var(--blue-600);
+
+    /* Inverted section */
+    --inverted: var(--neutral-100);
+    --inverted-foreground: var(--neutral-950);
+
+    /* Fumadocs */
     --color-fd-background: oklch(0.13 0.005 75);
     --color-fd-foreground: oklch(0.90 0.005 75);
-    --color-fd-primary: oklch(0.74 0.12 75);
+    --color-fd-primary: oklch(0.74 0.17 75);
     --color-fd-border: oklch(0.23 0.005 75);
-    --color-fd-muted-foreground: oklch(0.55 0.005 75);
+    --color-fd-muted-foreground: var(--neutral-500);
   }
+}
+
+/* ─── Docs: teal indicators, amber active text ──────────────────────── */
+
+.docs-teal {
+  --color-fd-primary: var(--teal);
+}
+.docs-teal [data-active='true'] {
+  color: var(--accent) !important;
+}
+
+/* ─── Base styles ────────────────────────────────────────────────────── */
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+}
+
+code, pre, kbd {
+  font-family: var(--font-mono);
 }

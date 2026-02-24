@@ -3,4 +3,176 @@ title: CLI Reference
 description: Complete dfs command reference.
 ---
 
-CLI reference.
+## Setup
+
+### `dfs doctor`
+
+```sh
+dfs doctor
+```
+
+Verify that all required tooling is installed and configured correctly. Run this after installation to confirm your environment is ready.
+
+### `dfs setup shell`
+
+```sh
+dfs setup shell
+```
+
+One-time shell setup that adds Ghostty integration, starship prompt, carapace completions, and fzf keybindings to `~/.zshrc`. This command is idempotent and safe to run multiple times.
+
+### `dfs setup credentials`
+
+```sh
+dfs setup credentials
+```
+
+Interactive prompt for entering your Anthropic and OpenAI API keys. Credentials are written to `~/.config/defuse/config.toml`.
+
+### `dfs init`
+
+```sh
+dfs init
+```
+
+Initialize a project by creating the standard directory structure with defaults: `.defuse/`, `.agent-mail/`, `kanban/`, and `.claude/skills/`.
+
+### `dfs start`
+
+```sh
+dfs start
+```
+
+Open Ghostty and launch a tmux session with the project layout, including workspace, dashboard, and review windows.
+
+### `dfs update`
+
+```sh
+dfs update
+```
+
+Pull the latest version of defuse and re-run `mise install` to apply any dependency changes.
+
+### `dfs uninstall`
+
+```sh
+dfs uninstall
+```
+
+Remove the defuse installation, including the repo, configuration, and symlink.
+
+---
+
+## Agent Operations
+
+### `dfs launch`
+
+```sh
+dfs launch "<task>"
+dfs launch
+dfs launch ab "<task>" --models <model1>,<model2>
+dfs launch tree "<task>" --model <parent> --child-model <child> --max-depth <n> --budget <amount>
+```
+
+Spawn agents to work on tasks in isolated jj workspaces.
+
+- With a task argument: spawns a single agent on the specified task.
+- Without arguments: dispatches the next ready task from the kanban board.
+- `ab` subcommand: runs an A/B comparison by launching two agents on the same task using different models.
+- `tree` subcommand: recursive decomposition where a parent model breaks down the task and child agents execute the subtasks.
+
+**`dfs launch ab` flags**
+
+| Flag | Description |
+|---|---|
+| `--models <model1>,<model2>` | Comma-separated list of two models to compare |
+
+**`dfs launch tree` flags**
+
+| Flag | Description |
+|---|---|
+| `--model <model>` | Model used for the parent decomposition step |
+| `--child-model <model>` | Model used by child agents for execution |
+| `--max-depth <n>` | Maximum recursion depth for decomposition |
+| `--budget <amount>` | Spending limit for the tree run |
+
+### `dfs status`
+
+```sh
+dfs status
+```
+
+Show a summary of active agents, pending reviews, queue depth, and accumulated costs.
+
+### `dfs kill`
+
+```sh
+dfs kill <agent>
+```
+
+Stop a running agent and clean up its process. The agent's workspace is preserved.
+
+### `dfs answer`
+
+```sh
+dfs answer <id> "<response>"
+```
+
+Send a reply to an agent that is waiting for a question to be answered.
+
+### `dfs clean`
+
+```sh
+dfs clean
+```
+
+Remove abandoned workspaces left behind by agents that were killed or otherwise terminated without cleanup.
+
+---
+
+## Search & Review
+
+### `dfs search`
+
+```sh
+dfs search "<query>"
+```
+
+Full-text search across command blocks and agent messages using libSQL FTS5. Returns relevant results from the project's stored history.
+
+### `dfs review`
+
+```sh
+dfs review
+```
+
+Open the interactive review TUI to inspect and act on completed agent work.
+
+---
+
+## Work Shaping
+
+### `dfs slice-to-kanban`
+
+```sh
+dfs slice-to-kanban
+```
+
+Convert slice files at `.shaped/slices/*.md` into tasks on the kanban board.
+
+---
+
+## Keyboard Shortcuts
+
+These shortcuts are available inside a `dfs start` tmux session.
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+R` | Search command history (fzf over libSQL) |
+| `Ctrl+B N` | Spawn an agent on a task |
+| `Ctrl+B R` | Review view |
+| `Ctrl+B D` | Dashboard (cross-project) |
+| `Ctrl+B K` | Advanced search |
+| `Ctrl+B G` | Open lazygit |
+| `Ctrl+B 1..9` | Switch tmux windows |
+| `` Ctrl+` `` | Toggle block inspector |

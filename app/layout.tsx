@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={`${heptaSlab.variable} ${atkinson.variable} ${lekton.variable}`} suppressHydrationWarning>
-      <body className="flex flex-col min-h-screen" style={{ fontFamily: 'var(--font-atkinson-hyperlegible-next)' }}>
+      <body className="flex flex-col min-h-screen">
         <RootProvider>{children}</RootProvider>
       </body>
     </html>

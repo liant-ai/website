@@ -11,6 +11,10 @@ export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: 'liant',
+      url: '/',
     },
+    links: [
+      { text: 'GitHub', url: 'https://github.com/liant-ai/liant' },
+    ],
   };
 }

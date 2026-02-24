@@ -39,3 +39,4 @@ Thumbs.db
 .claude/tasks/*
 !.claude/tasks/.gitkeep
 .claude/worktrees/
+.claude/CLAUDE.md
