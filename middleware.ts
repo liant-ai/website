@@ -1,6 +1,23 @@
-// OpenNext (Cloudflare) requires a `middleware` export — it does not yet support
-// the Next.js 16 `proxy.ts` convention. This file bridges the two: logic lives
-// in `proxy.ts` (Next.js 16 convention), re-exported here as `middleware` for
-// OpenNext compatibility. Remove this file once OpenNext supports `proxy.ts`.
+import { NextRequest, NextResponse } from 'next/server';
+
 export const runtime = 'edge';
-export { proxy as middleware, config } from './proxy';
+
+export function middleware(request: NextRequest) {
+  const host = request.headers.get('host') ?? '';
+  const { pathname } = request.nextUrl;
+
+  // docs.liant.ai/* → /docs/*
+  if (host.startsWith('docs.')) {
+    const url = request.nextUrl.clone();
+    if (!pathname.startsWith('/docs')) {
+      url.pathname = `/docs${pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};
