@@ -1,6 +1,79 @@
 ---
 title: Workflows
-description: Common workflows and message flows.
+description: Common workflows and message flows in defuse.
 ---
 
-Workflow documentation.
+## Command → Block → Search
+
+Every command you run becomes a searchable block.
+
+1. You type `cargo test` and press Enter
+2. The shell `preexec` hook fires — records command text, CWD, timestamp, git branch, emits OSC 133 markers for Ghostty/tmux prompt navigation
+3. The command runs; output streams through tmux to Ghostty
+4. The shell `precmd` hook fires — records exit code, calculates duration, optionally runs `tmux capture-pane -p` for an output snapshot, writes a complete JSONL event to `~/.local/share/defuse/blocks.jsonl`
+5. The dfs daemon reads the JSONL file and inserts the CommandBlock into libSQL
+6. You run `dfs search` — fzf queries libSQL and shows full output with exit codes and timing
+
+No configuration required after shell integration is installed. Every command, every session.
+
+## Agent Launch
+
+Running `dfs launch` starts an agent in an isolated workspace.
+
+1. You run `dfs launch "refactor auth"`
+2. The daemon coordinator:
+   - Creates a jj workspace for the task
+   - Optionally creates a tmux pane for the agent
+   - Runs `tmux select-layout tiled` to rebalance the layout
+   - Starts a pi-mono RPC session for the agent
+3. The sidebar TUI polls `tmux list-panes` and AMQ status, updating the workspace list with agent status indicators
+4. Agent completes — emits an AMQ `status` message; the sidebar shows the task as complete
+5. Agent crashes — daemon runs `tmux kill-pane` and rebalances remaining panes
+
+Child agents (spawned by parent agents via recursive decomposition) run headless — no tmux pane — to avoid unbounded pane proliferation.
+
+## Review Loop
+
+When an agent finishes, a second model reviews the work before you see it.
+
+1. Agent A (writer, e.g. Claude Sonnet) finishes its task; pi-mono fires `agent_end`
+2. `review-loop.ts` catches the event and sends: `amq send --to reviewer --kind review_request --body "{diff_ref}"`
+3. Agent B (reviewer, e.g. GPT-5-Codex or a local Llama model) reads its inbox; `amq-watcher.ts` injects the review task into Agent B's context
+4. Agent B produces a structured review and replies: `amq reply --kind review_response --body "VERDICT: REVISE..."`
+5. `review-loop.ts` on Agent A detects the response and injects the feedback into Agent A's context
+6. Agent A addresses the feedback; the loop repeats until the reviewer returns `APPROVED`
+7. If no approval after the configured number of rounds or timeout (default 900s), an OSC 777 notification fires for the developer
+
+Writer and reviewer are any models speaking AMQ — not hardcoded to a specific provider pair. pi-ai handles provider differences transparently.
+
+## Recursive Decomposition
+
+A parent agent breaks a complex task into subtasks and dispatches them to child agents running in parallel.
+
+1. Parent agent analyzes a complex task and decomposes it:
+   - `amq send --to child-1 --kind todo --body "Implement auth"`
+   - `amq send --to child-2 --kind todo --body "Implement payment"`
+2. The orchestrator CLI receives the AMQ `todo` messages for each child:
+   - Creates a jj workspace per child (auto-snapshot, conflict-safe)
+   - Launches a pi-mono RPC session per child
+   - Applies guardrails: max depth, budget limit, timeout
+   - Routes to a cheaper model via `RLM_CHILD_MODEL` if configured
+3. Children work independently in isolated workspaces — no filesystem conflicts because jj handles concurrent edits
+4. Each child finishes and reports back: `amq send --to parent --kind status --body "Auth done, change-id: abc123"`
+5. Parent drains its inbox, reviews each child's work via `jj diff`, and squashes changes: `jj squash --from child-1 --from child-2`
+
+Each child's AMQ `todo` message carries context extracted from the parent's recent reasoning — not just the task, but why it exists and what constraints apply.
+
+## Shaped Work → Parallel Execution
+
+From a high-level goal to multiple agents executing tasks in parallel.
+
+1. You open Claude Code or Pi with shaping-skills installed and describe the goal: "Add multi-provider payment support"
+2. The shaping skill guides the LLM through problem framing, requirements, shape options, fit check, breadboarding, and slicing — producing structured slice files in `.shaped/slices/`
+3. You initialize the kanban board: `kanban-md init`, then `slice-to-kanban.sh` reads the slices and creates tasks; `kanban-md list` shows all tasks as `todo`
+4. The daemon Dispatcher reads the kanban board, picks tasks with no unmet dependencies, and dispatches an agent per task with the full shaped context (requirements + breadboard + slice scope). Each agent gets a jj workspace and pi-mono RPC session
+5. Agent completes → `kanban-md move <id> review` → `review-loop.ts` triggers automatically
+6. Review approved → `kanban-md move <id> done` → the orchestrator checks for any newly unblocked tasks and dispatches the next agent
+7. All tasks complete — you review results via `kanban-md tui` or the dashboard TUI
+
+The orchestrator never needs to understand the work — it reads kanban state and shaped context, dispatches agents, and responds to status messages.
