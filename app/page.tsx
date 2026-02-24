@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, RefObject } from 'react';
 import Link from 'next/link';
 
 const INSTALL_CMD = 'curl -fsSL https://liant.ai/install | sh';
