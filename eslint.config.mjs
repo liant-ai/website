@@ -10,6 +10,7 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
     '.source/**',
     '.claude/worktrees/**',
+    '.open-next/**',
   ]),
 ]);
 
