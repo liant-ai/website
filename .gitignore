@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Fumadocs generated sources
+.source/
+
+# Cloudflare / OpenNext
+.open-next/
+.wrangler/
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Claude Code
+.claude/plans/*
+!.claude/plans/.gitkeep
+.claude/tasks/*
+!.claude/tasks/.gitkeep
+.claude/worktrees/
