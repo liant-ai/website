@@ -1,6 +1,159 @@
 ---
 title: Configuration
-description: Configure defuse for your environment.
+description: Global and per-project configuration reference for defuse.
 ---
 
-Configuration reference.
+## Directory Layout
+
+### Global (per-user)
+
+```
+~/.config/defuse/              # your config (edit these)
+├── config.toml                   # all settings: preferences, providers, aliases, cost limits
+└── themes/                       # optional custom themes
+
+~/.local/share/defuse/
+├── repo/                         # git clone (managed by dfs update — don't edit)
+│   ├── .mise.toml                # tool manifest
+│   ├── bin/                      # CLI entry point
+│   └── ...
+└── db/                           # cross-project data
+    └── global.db                 # libSQL (dashboard, cross-project search)
+
+~/.local/bin/dfs            # symlink → repo/bin/dfs
+```
+
+### Per-project (inside each repo)
+
+```
+.defuse/
+├── config.toml                   # project settings (budgets, lint rules, routing, compaction)
+└── layout.yaml                   # tmux window layout
+.agent-mail/                      # AMQ message bus (Maildir)
+kanban/                           # file-based task board (kanban-md)
+.shaped/                          # shaping-skills output (requirements, breadboards, slices)
+.claude/skills/                   # symlinks to shaping-skills
+```
+
+## Config Resolution
+
+Project `.defuse/config.toml` overrides global `~/.config/defuse/config.toml`. API keys live only in the global config — never in the repo.
+
+## Global Config Reference
+
+Full annotated example of `~/.config/defuse/config.toml`:
+
+```toml
+# ── Terminal & UI ─────────────────────────────────────
+[terminal]
+shell = "/bin/zsh"
+sidebar_width = 30
+sidebar_position = "left"
+
+[vcs]
+default = "jj"          # jj with git fallback
+auto_snapshot = true
+
+[notifications]
+review_complete = true
+agent_error = true
+budget_warning = true
+
+[cost_limits]
+daily_budget = 50.00
+monthly_budget = 500.00
+alert_at_percent = 80
+
+# ── LLM Providers ────────────────────────────────────
+[providers.anthropic]
+api_key = "${ANTHROPIC_API_KEY}"   # env var reference
+
+[providers.openai]
+api_key = "${OPENAI_API_KEY}"
+
+# [providers.ollama]
+# endpoint = "http://localhost:11434"
+
+# ── Model Aliases ────────────────────────────────────
+[aliases]
+writer = "claude-sonnet-4"
+reviewer = "gpt-5-codex"
+fast = "claude-haiku-4"
+# local = "ollama/llama3.2"
+```
+
+### `[terminal]`
+
+| Key | Default | Description |
+|---|---|---|
+| `shell` | `"/bin/zsh"` | Shell binary to use inside tmux panes |
+| `sidebar_width` | `30` | Width of the agent status sidebar in columns |
+| `sidebar_position` | `"left"` | `"left"` or `"right"` |
+
+### `[vcs]`
+
+| Key | Default | Description |
+|---|---|---|
+| `default` | `"jj"` | VCS backend: `"jj"` (with git fallback) or `"git"` |
+| `auto_snapshot` | `true` | Automatically snapshot before agent operations |
+
+### `[notifications]`
+
+| Key | Default | Description |
+|---|---|---|
+| `review_complete` | `true` | Notify when a review loop finishes |
+| `agent_error` | `true` | Notify on agent errors |
+| `budget_warning` | `true` | Notify when cost limits approach the alert threshold |
+
+### `[cost_limits]`
+
+| Key | Default | Description |
+|---|---|---|
+| `daily_budget` | `50.00` | Maximum spend per day in USD |
+| `monthly_budget` | `500.00` | Maximum spend per month in USD |
+| `alert_at_percent` | `80` | Send a budget warning at this percentage of the limit |
+
+### `[providers]`
+
+Configure each LLM provider you use. API key values support `${ENV_VAR}` references — defuse expands them at runtime. You can also export the variables directly in your shell and omit them from the file entirely.
+
+```toml
+[providers.anthropic]
+api_key = "${ANTHROPIC_API_KEY}"
+
+[providers.openai]
+api_key = "${OPENAI_API_KEY}"
+
+# Ollama (local models)
+# [providers.ollama]
+# endpoint = "http://localhost:11434"
+```
+
+### `[aliases]`
+
+Model aliases let project configs and launch commands reference short names instead of full model IDs. Change an alias once and every project follows.
+
+```toml
+[aliases]
+writer = "claude-sonnet-4"
+reviewer = "gpt-5-codex"
+fast = "claude-haiku-4"
+# local = "ollama/llama3.2"
+```
+
+## Per-project Config
+
+`.defuse/config.toml` follows the same schema as the global config. Only set what you want to override — everything else inherits from `~/.config/defuse/config.toml`.
+
+API keys must not appear in per-project config. Use the global config or environment variables.
+
+Example per-project override:
+
+```toml
+[cost_limits]
+daily_budget = 10.00
+monthly_budget = 100.00
+
+[aliases]
+writer = "claude-haiku-4"   # use the faster model for this project
+```
