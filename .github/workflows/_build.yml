@@ -19,11 +19,13 @@ jobs:
       - name: Build (Next.js + OpenNext)
         run: pnpm opennextjs-cloudflare build
 
+      - name: Archive build output
+        run: tar -czf open-next-build.tar.gz .open-next/
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: open-next-build
-          path: .open-next/
+          path: open-next-build.tar.gz
           retention-days: 1
-          include-hidden-files: true
           if-no-files-found: error

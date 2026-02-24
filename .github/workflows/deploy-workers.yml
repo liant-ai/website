@@ -25,7 +25,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: open-next-build
-          path: .open-next/
+
+      - name: Extract build output
+        run: tar -xzf open-next-build.tar.gz
 
       - name: Deploy
         env:
