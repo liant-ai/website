@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: node:20-slim
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build (Next.js + OpenNext)
+        run: pnpm opennextjs-cloudflare build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-next-build
+          path: .open-next/
+          retention-days: 1
+          include-hidden-files: true
+          if-no-files-found: error
