@@ -30,6 +30,9 @@ Thumbs.db
 *.swo
 *~
 
+# OpenNext
+.open-next/
+
 # Claude Code
 .claude/plans/*
 !.claude/plans/.gitkeep

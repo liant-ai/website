@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+:root {
+  /* Semantic font aliases */
+  --font-heading: var(--font-hepta-slab);
+  --font-body: var(--font-atkinson-hyperlegible-next);
+  --font-mono: var(--font-lekton);
+
+  /* Brand semantic tokens — hex fallbacks */
+  --background: #fafaf8;
+  --foreground: #1a1a18;
+  --muted: #737370;
+  --border: #e5e5e2;
+  --accent: #b8860b;
+  --accent-foreground: #1a1a18;
+
+  /* Override Fumadocs variables for light mode */
+  --color-fd-background: #fafaf8;
+  --color-fd-foreground: #1a1a18;
+  --color-fd-primary: #b8860b;
+  --color-fd-border: #e5e5e2;
+  --color-fd-muted-foreground: #737370;
+}
+
+@supports (color: oklch(0 0 0)) {
+  :root {
+    --background: oklch(0.98 0.005 75);
+    --foreground: oklch(0.13 0.005 75);
+    --muted: oklch(0.55 0.005 75);
+    --border: oklch(0.90 0.005 75);
+    --accent: oklch(0.65 0.14 75);
+    --accent-foreground: oklch(0.13 0.005 75);
+
+    --color-fd-background: oklch(0.98 0.005 75);
+    --color-fd-foreground: oklch(0.13 0.005 75);
+    --color-fd-primary: oklch(0.65 0.14 75);
+    --color-fd-border: oklch(0.90 0.005 75);
+    --color-fd-muted-foreground: oklch(0.55 0.005 75);
+  }
+}
+
+.dark {
+  --background: #1a1a18;
+  --foreground: #e5e5e2;
+  --muted: #737370;
+  --border: #2e2e2b;
+  --accent: #d4a030;
+  --accent-foreground: #fafaf8;
+
+  --color-fd-background: #1a1a18;
+  --color-fd-foreground: #e5e5e2;
+  --color-fd-primary: #d4a030;
+  --color-fd-border: #2e2e2b;
+  --color-fd-muted-foreground: #737370;
+}
+
+@supports (color: oklch(0 0 0)) {
+  .dark {
+    --background: oklch(0.13 0.005 75);
+    --foreground: oklch(0.90 0.005 75);
+    --muted: oklch(0.55 0.005 75);
+    --border: oklch(0.23 0.005 75);
+    --accent: oklch(0.74 0.12 75);
+    --accent-foreground: oklch(0.96 0.005 75);
+
+    --color-fd-background: oklch(0.13 0.005 75);
+    --color-fd-foreground: oklch(0.90 0.005 75);
+    --color-fd-primary: oklch(0.74 0.12 75);
+    --color-fd-border: oklch(0.23 0.005 75);
+    --color-fd-muted-foreground: oklch(0.55 0.005 75);
+  }
+}
