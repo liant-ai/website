@@ -13,6 +13,7 @@ const atkinson = Atkinson_Hyperlegible_Next({
   subsets: ['latin'],
   variable: '--font-atkinson-hyperlegible-next',
   display: 'swap',
+  adjustFontFallback: false, // font not in Next.js metrics DB
 });
 
 const lekton = Lekton({
