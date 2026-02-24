@@ -1,0 +1,19 @@
+name: Setup pnpm and dependencies
+description: Install pnpm via corepack and install dependencies
+
+runs:
+  using: composite
+  steps:
+    - name: Enable corepack
+      shell: bash
+      run: corepack enable && corepack prepare pnpm@9 --activate
+
+    - name: Setup Node cache
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
