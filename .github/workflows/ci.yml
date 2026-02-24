@@ -5,33 +5,54 @@ on:
     branches: [main]
 
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
+    container: node:20-slim
     permissions:
       contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: '9'
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Lint
         run: pnpm lint
 
+  typecheck:
+    runs-on: ubuntu-latest
+    container: node:20-slim
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
       - name: Type check
         run: pnpm types:check
 
-      - name: Build
-        run: pnpm build
+  build:
+    runs-on: ubuntu-latest
+    container: node:20-slim
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build (Next.js + OpenNext)
+        run: pnpm opennextjs-cloudflare build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-next-build
+          path: .open-next/
+          retention-days: 1
