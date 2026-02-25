@@ -146,6 +146,14 @@
   --color-fd-primary: #c48a00;
   --color-fd-border: #e5e5e2;
   --color-fd-muted-foreground: #737370;
+
+  /* Status badges — deep-blue / rose / terracotta */
+  --badge-stable-bg: #d8d8f0;
+  --badge-stable-fg: #505088;
+  --badge-dev-bg: #f0d8d8;
+  --badge-dev-fg: #a05858;
+  --badge-planned-bg: #f0e0d0;
+  --badge-planned-fg: #a06840;
 }
 
 @supports (color: oklch(0 0 0)) {
@@ -181,6 +189,14 @@
     --color-fd-primary: oklch(0.65 0.19 75);
     --color-fd-border: var(--neutral-200);
     --color-fd-muted-foreground: var(--neutral-500);
+
+    /* Status badges — deep-blue / rose / terracotta */
+    --badge-stable-bg: var(--blue-100);
+    --badge-stable-fg: var(--blue-500);
+    --badge-dev-bg: var(--rose-100);
+    --badge-dev-fg: var(--rose-500);
+    --badge-planned-bg: var(--terra-100);
+    --badge-planned-fg: var(--terra-500);
   }
 }
 
@@ -216,6 +232,14 @@
   --color-fd-primary: #dba020;
   --color-fd-border: #2e2e2b;
   --color-fd-muted-foreground: #737370;
+
+  /* Status badges — deep-blue / rose / terracotta */
+  --badge-stable-bg: #1a1a38;
+  --badge-stable-fg: #8080c0;
+  --badge-dev-bg: #381a1a;
+  --badge-dev-fg: #c08080;
+  --badge-planned-bg: #382818;
+  --badge-planned-fg: #c08060;
 }
 
 @supports (color: oklch(0 0 0)) {
@@ -251,6 +275,14 @@
     --color-fd-primary: oklch(0.74 0.17 75);
     --color-fd-border: oklch(0.23 0.005 75);
     --color-fd-muted-foreground: var(--neutral-500);
+
+    /* Status badges — deep-blue / rose / terracotta */
+    --badge-stable-bg: var(--blue-900);
+    --badge-stable-fg: var(--blue-600);
+    --badge-dev-bg: var(--rose-900);
+    --badge-dev-fg: var(--rose-600);
+    --badge-planned-bg: var(--terra-900);
+    --badge-planned-fg: var(--terra-600);
   }
 }
 
@@ -277,4 +309,21 @@ h1, h2, h3 {
 
 code, pre, kbd {
   font-family: var(--font-mono);
+}
+
+/* ─── Status badges ─────────────────────────────────────────────────── */
+
+.badge-stable {
+  background-color: var(--badge-stable-bg);
+  color: var(--badge-stable-fg);
+}
+
+.badge-dev {
+  background-color: var(--badge-dev-bg);
+  color: var(--badge-dev-fg);
+}
+
+.badge-planned {
+  background-color: var(--badge-planned-bg);
+  color: var(--badge-planned-fg);
 }

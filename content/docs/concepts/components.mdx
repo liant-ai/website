@@ -3,7 +3,11 @@ title: Components
 description: The tools and services that make up defuse.
 ---
 
+import { Badge } from '@/components/badge';
+
 ## Terminal Emulation — Ghostty
+
+<Badge status="stable" />
 
 **What it does**: renders terminal output with GPU acceleration. Provides the display layer for all tmux panes, TUI screens, and agent workspaces.
 
@@ -15,6 +19,8 @@ Ghostty does not manage sessions, layouts, or pane splits — tmux owns all of t
 
 ## Multiplexing — tmux
 
+<Badge status="stable" />
+
 **What it does**: manages sessions, windows, and panes. The orchestrator creates and destroys panes via tmux CLI commands to host agent workspaces, TUI screens, and developer terminals.
 
 **Why it was chosen**: every major AI coding tool (Claude Code, Codex CLI, OpenCode) already runs in tmux panes. tmux's stable object references (`$N`, `@N`, `%N`) make panes addressable across the daemon's lifetime. Layout persistence via tmuxp/tmuxinator YAML files defines per-project window configurations.
@@ -24,6 +30,8 @@ Ghostty does not manage sessions, layouts, or pane splits — tmux owns all of t
 Key limitation: tmux does not support the Kitty keyboard protocol, which breaks Shift+Enter for multiline input in some agent CLIs. Zellij is the future alternative if this becomes blocking.
 
 ## Block Capture — Shell Hooks
+
+<Badge status="stable" />
 
 **What it does**: captures every command you run as a structured event. Shell `precmd`/`preexec` hooks write a JSONL event for each command, including command text, exit code, CWD, duration, git branch, and session ID.
 
@@ -49,6 +57,8 @@ The dfs daemon tails this file and ingests events into libSQL.
 
 ## Storage and Search — libSQL
 
+<Badge status="stable" />
+
 **What it does**: stores all command blocks, agent messages, and reviews. Serves full-text search over command output and agent conversations via FTS5/BM25 indexing.
 
 **Why it was chosen**: libSQL is a Turso fork of SQLite with concurrent writer support via WAL mode. Single `.db` file per project. All SQLite tooling works. Sub-millisecond queries at expected data volumes. Native Rust bindings.
@@ -58,6 +68,8 @@ The dfs daemon tails this file and ingests events into libSQL.
 Tables: `command_blocks`, `agent_messages`, `reviews`, plus FTS5 virtual tables for keyword search.
 
 ## Message Bus — AMQ
+
+<Badge status="dev" />
 
 **What it does**: routes messages between agents using a file-based Maildir queue. Agents send, receive, and reply to structured messages without any shared infrastructure.
 
@@ -72,6 +84,8 @@ Tables: `command_blocks`, `agent_messages`, `reviews`, plus FTS5 virtual tables 
 **CLI**: `amq init`, `amq send`, `amq list`, `amq drain`, `amq reply`
 
 ## Agent Middleware — pi-mono and pi-ai
+
+<Badge status="dev" />
 
 **What it does**: provides a unified interface to 20+ LLM providers, a structured agent runtime with RPC control, and a TypeScript extension system for customizing agent behavior.
 
@@ -89,20 +103,22 @@ Extensions are TypeScript modules in `~/.pi/agent/extensions/` or `.pi/extension
 
 ## The dfs Daemon
 
+<Badge status="stable" />
+
 **What it does**: the single long-running background process that owns all libSQL writes. It ingests events from shell hooks, AMQ Maildir, and kanban-md, and coordinates agent lifecycle.
 
 **Why it matters**: the daemon is the write authority. No other process writes to the database. TUI screens and the CLI read libSQL directly — the daemon is never in the read path.
 
 **Actor inventory**:
 
-| Actor | Role |
-|---|---|
-| BlockIngester | Tails JSONL, writes CommandBlocks to libSQL |
-| MessageBridge | Watches AMQ Maildir, writes Message projections to libSQL |
-| KanbanBridge | Watches `kanban/` directory, writes Task projections to libSQL |
-| Supervisor | Polls pi-mono RPC `get_state` for active agents, detects hangs, cleans stale panes |
-| MergeCoordinator | Sequences workspace merges, one at a time, with rollback |
-| Dispatcher | Reads kanban board, matches ready tasks to available capacity, launches agents |
+| Actor | Role | Status |
+|---|---|---|
+| BlockIngester | Tails JSONL, writes CommandBlocks to libSQL | <Badge status="stable" /> |
+| MessageBridge | Watches AMQ Maildir, writes Message projections to libSQL | <Badge status="dev" /> |
+| KanbanBridge | Watches `kanban/` directory, writes Task projections to libSQL | <Badge status="dev" /> |
+| Supervisor | Polls pi-mono RPC `get_state` for active agents, detects hangs, cleans stale panes | <Badge status="planned" /> |
+| MergeCoordinator | Sequences workspace merges, one at a time, with rollback | <Badge status="planned" /> |
+| Dispatcher | Reads kanban board, matches ready tasks to available capacity, launches agents | <Badge status="dev" /> |
 
 All actors communicate via `mpsc` channels. No shared mutable state.
 

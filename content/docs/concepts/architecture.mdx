@@ -3,6 +3,8 @@ title: Architecture
 description: The eight-layer protocol-first architecture of defuse.
 ---
 
+import { Badge } from '@/components/badge';
+
 ## Design Principles
 
 defuse is built on five principles that shape every decision:
@@ -15,45 +17,16 @@ defuse is built on five principles that shape every decision:
 
 ## The Eight-Layer Stack
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ L7: TUI Screens                                                 │
-│   Ratatui apps in tmux panes                                    │
-│   sidebar · dashboard · search · reviews · history              │
-├─────────────────────────────────────────────────────────────────┤
-│ L6: Shell Integration                                           │
-│   carapace completions · starship prompt · reedline/neovim      │
-│   shell hooks (precmd/preexec) · CARAPACE_BRIDGES · nvim-cmp    │
-├─────────────────────────────────────────────────────────────────┤
-│ L5: Quality Gates                                               │
-│   AMQ review_request/review_response · cross-model review       │
-│   convergence detection · human-in-the-loop escalation          │
-│   lint gate (three-phase enforcement, config tamper detection)   │
-├─────────────────────────────────────────────────────────────────┤
-│ L4: Work Planning + Agent Orchestration                         │
-│   shaping-skills (requirements, shapes, breadboards, slices)    │
-│   kanban-md (task lifecycle, claims, status, assignment)         │
-│   Orchestrator: dfs CLI + daemon (tmux CLI + amq + kanban-md + pi-mono) │
-│   jj workspace / git worktree isolation · A/B comparison        │
-├─────────────────────────────────────────────────────────────────┤
-│ L3: Agent Middleware (pi-mono)                                  │
-│   pi-ai unified LLM API (20+ providers + local models)          │
-│   RPC mode (JSON/stdio) · extensions · session tree · pi-tui    │
-├─────────────────────────────────────────────────────────────────┤
-│ L2: Message Bus + Storage                                       │
-│   AMQ (Maildir file queue · JSON+MD · priority · threading)     │
-│   libSQL (concurrent writers, FTS5/BM25, WAL mode)              │
-│   dfs daemon (JSONL + AMQ + kanban-md → libSQL bridge)          │
-├─────────────────────────────────────────────────────────────────┤
-│ L1: Block Capture                                               │
-│   Shell hooks → JSONL → dfs daemon → libSQL                    │
-│   Optional tmux capture-pane for output snapshots               │
-├─────────────────────────────────────────────────────────────────┤
-│ L0: Terminal + Multiplexer                                      │
-│   Ghostty renders · tmux manages sessions/panes                 │
-│   Both used as-is, not customized                               │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Layer | What it does | Key components | Status |
+|---|---|---|---|
+| **L7: TUI Screens** | User-facing dashboards and views | Ratatui apps in tmux panes: sidebar, dashboard, search, reviews, history | <Badge status="planned" /> |
+| **L6: Shell Integration** | Developer-facing shell conveniences | carapace completions, starship prompt, shell hooks, nvim-cmp | <Badge status="stable" /> |
+| **L5: Quality Gates** | Automated review before human sees results | AMQ review_request/review_response, cross-model review, convergence detection, lint gate | <Badge status="dev" /> |
+| **L4: Work Planning** | Task decomposition and agent orchestration | shaping-skills, kanban-md, dfs CLI + daemon, jj workspace isolation, A/B comparison | <Badge status="dev" /> |
+| **L3: Agent Middleware** | Unified LLM interface and agent runtime | pi-ai (20+ providers + local), pi-mono RPC (JSON/stdio), TypeScript extensions | <Badge status="dev" /> |
+| **L2: Message Bus + Storage** | Persistent state and inter-agent messaging | AMQ (Maildir queue), libSQL (FTS5/BM25, WAL mode), dfs daemon bridge | <Badge status="stable" /> / <Badge status="dev" /> |
+| **L1: Block Capture** | Structured command history | Shell hooks → JSONL → dfs daemon → libSQL, optional tmux capture-pane | <Badge status="stable" /> |
+| **L0: Terminal + Multiplexer** | Rendering and session management | Ghostty (GPU rendering, OSC 133) + tmux (sessions, panes, layouts) | <Badge status="stable" /> |
 
 ## Protocol Contracts
 

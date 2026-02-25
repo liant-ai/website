@@ -3,7 +3,11 @@ title: Workflows
 description: Common workflows and message flows in defuse.
 ---
 
+import { Badge } from '@/components/badge';
+
 ## Command → Block → Search
+
+<Badge status="stable" />
 
 Every command you run becomes a searchable block.
 
@@ -17,6 +21,8 @@ Every command you run becomes a searchable block.
 No configuration required after shell integration is installed. Every command, every session.
 
 ## Agent Launch
+
+<Badge status="dev" />
 
 Running `dfs launch` starts an agent in an isolated workspace.
 
@@ -34,6 +40,8 @@ Child agents (spawned by parent agents via recursive decomposition) run headless
 
 ## Review Loop
 
+<Badge status="dev" />
+
 When an agent finishes, a second model reviews the work before you see it.
 
 1. Agent A (writer, e.g. Claude Sonnet) finishes its task; pi-mono fires `agent_end`
@@ -47,6 +55,8 @@ When an agent finishes, a second model reviews the work before you see it.
 Writer and reviewer are any models speaking AMQ — not hardcoded to a specific provider pair. pi-ai handles provider differences transparently.
 
 ## Recursive Decomposition
+
+<Badge status="planned" />
 
 A parent agent breaks a complex task into subtasks and dispatches them to child agents running in parallel.
 
@@ -65,6 +75,8 @@ A parent agent breaks a complex task into subtasks and dispatches them to child 
 Each child's AMQ `todo` message carries context extracted from the parent's recent reasoning — not just the task, but why it exists and what constraints apply.
 
 ## Shaped Work → Parallel Execution
+
+<Badge status="planned" />
 
 From a high-level goal to multiple agents executing tasks in parallel.
 
