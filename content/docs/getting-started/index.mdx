@@ -3,6 +3,8 @@ title: Getting Started
 description: Install Ghostty, set up defuse, and configure your environment.
 ---
 
+import { Badge } from '@/components/badge';
+
 ## Requirements
 
 - macOS or Linux
@@ -92,18 +94,20 @@ dfs start
 
 Opens Ghostty into a tmux session with your project layout: workspace, dashboard, and review windows.
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl+R` | Search command history (fzf over libSQL) |
-| `Ctrl+B N` | Spawn an agent on a task |
-| `Ctrl+B R` | Review view |
-| `Ctrl+B D` | Dashboard (cross-project) |
-| `Ctrl+B K` | Advanced search |
-| `Ctrl+B G` | Open lazygit |
-| `Ctrl+B 1..9` | Switch tmux windows |
-| `` Ctrl+` `` | Toggle block inspector |
+| Shortcut | Action | Status |
+|---|---|---|
+| `Ctrl+R` | Search command history (fzf over libSQL) | <Badge status="stable" /> |
+| `Ctrl+B N` | Spawn an agent on a task | <Badge status="planned" /> |
+| `Ctrl+B R` | Review view | <Badge status="planned" /> |
+| `Ctrl+B D` | Dashboard (cross-project) | <Badge status="planned" /> |
+| `Ctrl+B K` | Advanced search | <Badge status="planned" /> |
+| `Ctrl+B G` | Open lazygit | <Badge status="planned" /> |
+| `Ctrl+B 1..9` | Switch tmux windows | <Badge status="planned" /> |
+| `` Ctrl+` `` | Toggle block inspector | <Badge status="planned" /> |
 
 ## Launch Agents
+
+<Badge status="dev" />
 
 ```zsh
 # Single agent on a task

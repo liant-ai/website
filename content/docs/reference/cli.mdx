@@ -3,9 +3,13 @@ title: CLI Reference
 description: Complete dfs command reference.
 ---
 
+import { Badge } from '@/components/badge';
+
 ## Setup
 
 ### `dfs doctor`
+
+<Badge status="stable" />
 
 ```sh
 dfs doctor
@@ -15,6 +19,8 @@ Verify that all required tooling is installed and configured correctly. Run this
 
 ### `dfs setup shell`
 
+<Badge status="dev" />
+
 ```sh
 dfs setup shell
 ```
@@ -22,6 +28,8 @@ dfs setup shell
 One-time shell setup that adds Ghostty integration, starship prompt, carapace completions, and fzf keybindings to `~/.zshrc`. This command is idempotent and safe to run multiple times.
 
 ### `dfs setup credentials`
+
+<Badge status="dev" />
 
 ```sh
 dfs setup credentials
@@ -31,6 +39,8 @@ Interactive prompt for entering your Anthropic and OpenAI API keys. Credentials 
 
 ### `dfs init`
 
+<Badge status="stable" />
+
 ```sh
 dfs init
 ```
@@ -38,6 +48,8 @@ dfs init
 Initialize a project by creating the standard directory structure with defaults: `.defuse/`, `.agent-mail/`, `kanban/`, and `.claude/skills/`.
 
 ### `dfs start`
+
+<Badge status="stable" />
 
 ```sh
 dfs start
@@ -47,6 +59,8 @@ Open Ghostty and launch a tmux session with the project layout, including worksp
 
 ### `dfs update`
 
+<Badge status="dev" />
+
 ```sh
 dfs update
 ```
@@ -54,6 +68,8 @@ dfs update
 Pull the latest version of defuse and re-run `mise install` to apply any dependency changes.
 
 ### `dfs uninstall`
+
+<Badge status="dev" />
 
 ```sh
 dfs uninstall
@@ -76,10 +92,10 @@ dfs launch tree "<task>" --model <parent> --child-model <child> --max-depth <n> 
 
 Spawn agents to work on tasks in isolated jj workspaces.
 
-- With a task argument: spawns a single agent on the specified task.
-- Without arguments: dispatches the next ready task from the kanban board.
-- `ab` subcommand: runs an A/B comparison by launching two agents on the same task using different models.
-- `tree` subcommand: recursive decomposition where a parent model breaks down the task and child agents execute the subtasks.
+- With a task argument: spawns a single agent on the specified task. <Badge status="dev" />
+- Without arguments: dispatches the next ready task from the kanban board. <Badge status="planned" />
+- `ab` subcommand: runs an A/B comparison by launching two agents on the same task using different models. <Badge status="dev" />
+- `tree` subcommand: recursive decomposition where a parent model breaks down the task and child agents execute the subtasks. <Badge status="planned" />
 
 **`dfs launch ab` flags**
 
@@ -98,6 +114,8 @@ Spawn agents to work on tasks in isolated jj workspaces.
 
 ### `dfs status`
 
+<Badge status="stable" />
+
 ```sh
 dfs status
 ```
@@ -105,6 +123,8 @@ dfs status
 Show a summary of active agents, pending reviews, queue depth, and accumulated costs.
 
 ### `dfs kill`
+
+<Badge status="dev" />
 
 ```sh
 dfs kill <agent>
@@ -114,6 +134,8 @@ Stop a running agent and clean up its process. The agent's workspace is preserve
 
 ### `dfs answer`
 
+<Badge status="dev" />
+
 ```sh
 dfs answer <id> "<response>"
 ```
@@ -121,6 +143,8 @@ dfs answer <id> "<response>"
 Send a reply to an agent that is waiting for a question to be answered.
 
 ### `dfs clean`
+
+<Badge status="dev" />
 
 ```sh
 dfs clean
@@ -134,6 +158,8 @@ Remove abandoned workspaces left behind by agents that were killed or otherwise 
 
 ### `dfs search`
 
+<Badge status="stable" />
+
 ```sh
 dfs search "<query>"
 ```
@@ -141,6 +167,8 @@ dfs search "<query>"
 Full-text search across command blocks and agent messages using libSQL FTS5. Returns relevant results from the project's stored history.
 
 ### `dfs review`
+
+<Badge status="planned" />
 
 ```sh
 dfs review
@@ -154,6 +182,8 @@ Open the interactive review TUI to inspect and act on completed agent work.
 
 ### `dfs slice-to-kanban`
 
+<Badge status="dev" />
+
 ```sh
 dfs slice-to-kanban
 ```
@@ -166,13 +196,13 @@ Convert slice files at `.shaped/slices/*.md` into tasks on the kanban board.
 
 These shortcuts are available inside a `dfs start` tmux session.
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl+R` | Search command history (fzf over libSQL) |
-| `Ctrl+B N` | Spawn an agent on a task |
-| `Ctrl+B R` | Review view |
-| `Ctrl+B D` | Dashboard (cross-project) |
-| `Ctrl+B K` | Advanced search |
-| `Ctrl+B G` | Open lazygit |
-| `Ctrl+B 1..9` | Switch tmux windows |
-| `` Ctrl+` `` | Toggle block inspector |
+| Shortcut | Action | Status |
+|---|---|---|
+| `Ctrl+R` | Search command history (fzf over libSQL) | <Badge status="stable" /> |
+| `Ctrl+B N` | Spawn an agent on a task | <Badge status="planned" /> |
+| `Ctrl+B R` | Review view | <Badge status="planned" /> |
+| `Ctrl+B D` | Dashboard (cross-project) | <Badge status="planned" /> |
+| `Ctrl+B K` | Advanced search | <Badge status="planned" /> |
+| `Ctrl+B G` | Open lazygit | <Badge status="planned" /> |
+| `Ctrl+B 1..9` | Switch tmux windows | <Badge status="planned" /> |
+| `` Ctrl+` `` | Toggle block inspector | <Badge status="planned" /> |

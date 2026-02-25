@@ -23,5 +23,7 @@ export async function getLLMText(page: InferPageType<typeof source>) {
 
   return `# ${page.data.title}
 
+${page.data.description}
+
 ${processed}`;
 }

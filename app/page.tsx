@@ -33,13 +33,14 @@ const FEATURES = [
 ];
 
 const STACK = [
-  { layer: 'L7', name: 'Ghostty', protocol: 'OSC 133' },
-  { layer: 'L6', name: 'tmux', protocol: 'PTY' },
-  { layer: 'L5', name: 'zsh + hooks', protocol: 'JSONL' },
-  { layer: 'L4', name: 'dfs daemon', protocol: 'JSON-RPC' },
-  { layer: 'L3', name: 'pi-mono', protocol: 'AMQ' },
-  { layer: 'L2', name: 'libSQL', protocol: 'SQL' },
-  { layer: 'L1', name: 'jj / git', protocol: '' },
+  { layer: 'L0', name: 'Ghostty + tmux', protocol: 'PTY + OSC 133' },
+  { layer: 'L1', name: 'Block Capture', protocol: 'JSONL' },
+  { layer: 'L2', name: 'AMQ + libSQL', protocol: 'SQL + Maildir' },
+  { layer: 'L3', name: 'pi-mono', protocol: 'JSON-RPC' },
+  { layer: 'L4', name: 'Orchestration', protocol: 'kanban-md' },
+  { layer: 'L5', name: 'Quality Gates', protocol: 'AMQ' },
+  { layer: 'L6', name: 'Shell Integration', protocol: '' },
+  { layer: 'L7', name: 'TUI Screens', protocol: 'Ratatui' },
 ];
 
 const FEATURE_COLORS = [
@@ -56,13 +57,14 @@ const FEATURE_COLORS = [
    ─────────────────────────────────────────────────────────────────── */
 
 const LAYER_COLORS_INVERTED = [
-  '#dba020', // L7 — amber
+  '#50b0b0', // L0 — teal
+  '#dba020', // L1 — amber
+  '#c08080', // L2 — rose
+  '#8080c0', // L3 — deep-blue
+  '#c08060', // L4 — terracotta
+  '#dba020', // L5 — amber
   '#50b0b0', // L6 — teal
-  '#c08080', // L5 — rose
-  '#8080c0', // L4 — deep-blue
-  '#c08060', // L3 — terracotta
-  '#dba020', // L2 — amber
-  '#50b0b0', // L1 — teal
+  '#c08080', // L7 — rose
 ];
 
 /* ── Mosaic strip ────────────────────────────────────────────────────
@@ -149,7 +151,7 @@ export default function HomePage() {
             <Link href="/docs" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
               Docs
             </Link>
-            <Link href="https://github.com/liant-ai/liant" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
+            <Link href="https://github.com/liant-ai/defuse" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
               GitHub
             </Link>
           </nav>
@@ -195,7 +197,7 @@ export default function HomePage() {
               </Link>
               <span className="text-border">|</span>
               <Link
-                href="https://github.com/liant-ai/liant"
+                href="https://github.com/liant-ai/defuse"
                 className="group text-sm font-medium text-muted hover:text-foreground transition-colors"
               >
                 Source code <span className="inline-block transition-transform duration-200 group-hover:translate-x-0.5">↗</span>
@@ -221,7 +223,7 @@ export default function HomePage() {
                 — protocol contracts all the way down
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(7,1fr)] gap-px bg-background/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(8,1fr)] gap-px bg-background/10">
               {STACK.map((row, i) => (
                 <div key={row.layer} className="bg-foreground px-3 py-3 flex flex-col gap-1 hover:bg-background/5 transition-colors">
                   <span
@@ -307,7 +309,7 @@ export default function HomePage() {
             liant — that which binds.
           </p>
           <nav className="flex items-center gap-5">
-            <Link href="https://github.com/liant-ai/liant" className="text-xs text-muted hover:text-foreground transition-colors">
+            <Link href="https://github.com/liant-ai/defuse" className="text-xs text-muted hover:text-foreground transition-colors">
               GitHub
             </Link>
             <Link href="/docs" className="text-xs text-muted hover:text-foreground transition-colors">
