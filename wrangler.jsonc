@@ -1,10 +1,13 @@
 {
   "name": "liant-website",
-  "main": ".open-next/worker.js",
-  "compatibility_date": "2024-09-23",
+  "compatibility_date": "2026-02-25",
   "compatibility_flags": ["nodejs_compat"],
+  "main": "./worker/index.ts",
   "assets": {
-    "directory": ".open-next/assets",
+    "not_found_handling": "none",
     "binding": "ASSETS"
+  },
+  "images": {
+    "binding": "IMAGES"
   }
 }
