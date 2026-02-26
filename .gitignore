@@ -10,13 +10,16 @@ tsconfig.tsbuildinfo
 # Fumadocs generated sources
 .source/
 
-# Cloudflare / OpenNext
-.open-next/
+# Cloudflare / vinext
+dist/
 .wrangler/
 
 # Build output
 dist/
 build/
+public/og/
+docs-site/build/
+docs-site/.docusaurus/
 
 # Environment
 .env
@@ -28,6 +31,7 @@ build/
 
 # OS
 .DS_Store
+**/.DS_Store
 Thumbs.db
 
 # Editor
@@ -35,8 +39,8 @@ Thumbs.db
 *.swo
 *~
 
-# OpenNext
-.open-next/
+# vinext
+dist/
 
 # Claude Code
 .claude/plans/*
@@ -45,3 +49,24 @@ Thumbs.db
 !.claude/tasks/.gitkeep
 .claude/worktrees/
 .claude/CLAUDE.md
+
+# Codex
+.codex/
+.codex/plans/*
+!.codex/plans/.gitkeep
+.codex/tasks/*
+!.codex/tasks/.gitkeep
+.codex/worktrees/
+.codex/CLAUDE.md
+
+# Agent/tooling artifacts
+.agents/
+.claude/skills/
+.compare/
+.worktrees/
+dogfood-output/
+
+# Local machine settings
+.npmrc
+.nvmrc
+skills-lock.json
