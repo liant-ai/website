@@ -1,5 +1,6 @@
 import './global.css';
 import googleFonts from 'next/font/google';
+import type { ReactNode } from 'react';
 import { AppRootProvider } from '@/components/root-provider';
 
 // @ts-expect-error vinext's font shim uses a Proxy that doesn't export our fonts by name
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://liant.ai'),
 };
 
-export default function Layout({ children }: LayoutProps<'/'>) {
+export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${heptaSlab.variable} ${atkinson.variable} ${lekton.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
