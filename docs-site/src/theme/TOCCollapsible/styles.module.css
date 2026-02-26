@@ -1,0 +1,13 @@
+.tocCollapsible {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+
+.tocCollapsibleContent {
+  padding: 0 0.75rem 0.75rem;
+}
+
+.tocCollapsibleExpanded {
+  background: var(--background);
+}

@@ -1,13 +1,13 @@
 # Liant Website
 
-Marketing site and documentation for [liant.ai](https://liant.ai), built with Next.js 16 and Fumadocs. Deployed to Cloudflare Workers.
+Marketing site and docs for [liant.ai](https://liant.ai), built with Next.js 16 + Vinext and deployed to Cloudflare Workers.
 
 ## Tech stack
 
 - **Next.js 16** (App Router)
-- **Fumadocs** — MDX-based documentation
+- **Docusaurus** (workspace package `docs-site`) — docs source, bundled into `/docs`
 - **Tailwind CSS v4** — CSS-first config
-- **OpenNext + Cloudflare Workers** — edge deployment
+- **Vinext + Cloudflare Workers** — edge deployment
 - **pnpm** — package manager
 
 ## Getting started
@@ -17,9 +17,9 @@ pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:5173](http://localhost:5173) (or the next available Vite port).
 
-Docs are served at `/docs` locally, and at `docs.liant.ai` in production (via middleware rewrite).
+Docs are served at `/docs` from the same deployment artifact.
 
 ## Project structure
 
@@ -27,14 +27,10 @@ Docs are served at `/docs` locally, and at `docs.liant.ai` in production (via mi
 app/
   page.tsx          # Landing page
   layout.tsx        # Root layout (fonts, global styles)
-  docs/             # Fumadocs docs app
-content/
-  docs/             # MDX source files
-lib/
-  source.ts         # Fumadocs source loader
-  layout.shared.tsx # Shared nav config
-middleware.ts       # docs.liant.ai → /docs rewrite
-source.config.ts    # Fumadocs MDX config
+docs-site/          # Docusaurus docs source
+worker/
+  index.ts          # Cloudflare Worker entry
+vite.config.ts      # Vinext/Vite configuration
 wrangler.jsonc      # Cloudflare Workers config
 ```
 
@@ -42,16 +38,22 @@ wrangler.jsonc      # Cloudflare Workers config
 
 | Command | Description |
 |---|---|
-| `pnpm dev` | Start local dev server |
-| `pnpm build` | Production build (Next.js) |
-| `pnpm preview` | Build + preview with Wrangler locally |
+| `pnpm dev` | Start the primary site |
+| `pnpm dev:web` | Start only the primary site (Vite) |
+| `pnpm dev:prod-shape` | Build and run through `wrangler dev` (closest local prod runtime) |
+| `pnpm dev:docs-site` | Start the docs source site directly (Docusaurus dev server) |
+| `pnpm build` | Build the primary site and bundle docs into `/docs` |
+| `pnpm preview` | Build + preview the primary site locally |
+| `pnpm preview:docs-site` | Build + serve docs source site output |
 | `pnpm deploy` | Build + deploy to Cloudflare Workers |
 | `pnpm lint` | Run ESLint |
 | `pnpm types:check` | Type-check TypeScript |
 
-## Adding docs
+`dev:prod-shape` intentionally uses quieter Wrangler logging to hide non-actionable tooling noise while preserving real warnings/errors.
 
-Create MDX files under `content/docs/`. Update `meta.json` in each directory to control page order:
+## Docs Development
+
+Create MDX files under `docs-site/docs/`. They are bundled into this app at `/docs` during `pnpm build`. Update `meta.json` in each directory to control page order:
 
 ```json
 { "pages": ["index", "configuration"] }
@@ -74,4 +76,3 @@ In the Cloudflare dashboard, add Worker routes for your domain:
 
 - `liant.ai/*`
 - `www.liant.ai/*`
-- `docs.liant.ai/*`

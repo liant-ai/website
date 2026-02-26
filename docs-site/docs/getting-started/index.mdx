@@ -1,0 +1,128 @@
+---
+title: Getting Started
+description: Install Ghostty, set up defuse, and configure your environment.
+---
+
+import { Badge } from '@site/src/components/Badge';
+
+## Requirements
+
+- macOS or Linux
+- zsh
+- [Ghostty](https://ghostty.org) terminal emulator
+
+## Install Ghostty
+
+Ghostty provides GPU-accelerated rendering, OSC 133 shell integration, and the Kitty graphics protocol. It is required.
+
+```zsh
+# macOS
+brew install --cask ghostty
+
+# Linux — see https://ghostty.org/docs/install
+```
+
+## Install Defuse
+
+```zsh
+curl -fsSL https://raw.githubusercontent.com/liant-ai/defuse/main/install.sh | sh
+```
+
+The installer:
+
+1. Installs [uv](https://docs.astral.sh/uv/) and [mise](https://mise.jdx.dev/) if not present
+2. Clones the repo to `~/.local/share/defuse/repo/`
+3. Runs `mise install` inside it (installs all runtimes and CLI tools)
+4. Creates `~/.config/defuse/` with default global config files
+5. Symlinks the `dfs` binary to `~/.local/bin/`
+6. Adds `~/.local/bin` to `PATH` in `~/.zshrc` if not already there
+
+After install, restart your shell or `source ~/.zshrc`, then verify:
+
+```zsh
+dfs doctor
+```
+
+## Shell Setup
+
+Run the one-time shell setup command:
+
+```zsh
+dfs setup shell
+```
+
+This adds the following to `~/.zshrc` (idempotent — won't duplicate on repeat runs):
+
+- Ghostty shell integration (OSC 133 markers for block capture)
+- starship prompt
+- carapace completions and bridge fallbacks
+- fzf keybindings and completion
+
+Restart your shell or `source ~/.zshrc` after running.
+
+## Configure API Keys
+
+```zsh
+dfs setup credentials
+```
+
+Interactive prompt for Anthropic and OpenAI API keys. Writes to `~/.config/defuse/config.toml`. Skip providers you don't use.
+
+You can also set keys via environment variables instead of storing them in the config file:
+
+```zsh
+export ANTHROPIC_API_KEY="sk-ant-..."
+export OPENAI_API_KEY="sk-..."
+```
+
+## Initialize a Project
+
+`cd` into any git repo, then run:
+
+```zsh
+cd ~/code/my-api
+dfs init
+```
+
+Creates `.defuse/`, `.agent-mail/`, `kanban/`, and `.claude/skills/` directories with sensible defaults. Everything is file-based and git-trackable. You only need to set what differs from the global config.
+
+## Start Working
+
+```zsh
+dfs start
+```
+
+Opens Ghostty into a tmux session with your project layout: workspace, dashboard, and review windows.
+
+| Shortcut | Action | Status |
+|---|---|---|
+| `Ctrl+R` | Search command history (fzf over libSQL) | <Badge status="stable" /> |
+| `Ctrl+B N` | Spawn an agent on a task | <Badge status="planned" /> |
+| `Ctrl+B R` | Review view | <Badge status="planned" /> |
+| `Ctrl+B D` | Dashboard (cross-project) | <Badge status="planned" /> |
+| `Ctrl+B K` | Advanced search | <Badge status="planned" /> |
+| `Ctrl+B G` | Open lazygit | <Badge status="planned" /> |
+| `Ctrl+B 1..9` | Switch tmux windows | <Badge status="planned" /> |
+| `` Ctrl+` `` | Toggle block inspector | <Badge status="planned" /> |
+
+## Launch Agents
+
+<Badge status="dev" />
+
+```zsh
+# Single agent on a task
+dfs launch "refactor auth module"
+
+# A/B comparison — two models, same task
+dfs launch ab "optimize query performance" --models sonnet,gpt-5
+
+# Recursive decomposition — parent decomposes, children execute
+dfs launch tree "refactor payment system" \
+  --model claude-sonnet-4 --child-model claude-haiku-4 \
+  --max-depth 3 --budget 5.00
+
+# Dispatch next ready task from the kanban board
+dfs launch
+```
+
+Agents run in isolated jj workspaces inside tmux panes (top-level) or headless (children). The sidebar shows live status. Reviews trigger automatically.

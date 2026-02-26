@@ -1,0 +1,68 @@
+---
+title: Architecture
+description: The eight-layer protocol-first architecture of defuse.
+---
+
+import { Badge } from '@site/src/components/Badge';
+
+## Design Principles
+
+defuse is built on five principles that shape every decision:
+
+- **Terminal-native**: lean into OSC escape sequences, PTY streams, and established terminal conventions — not against them
+- **Protocol-first**: every layer boundary is a contract (OSC 133, Maildir, JSON-RPC, SQL) — not a code dependency
+- **Modular**: swap any component without touching others; the interface is the architecture
+- **Incremental**: each milestone delivers standalone value before the next is started
+- **Composable**: connect emerging tools and workflows without rebuilding the platform
+
+## The Eight-Layer Stack
+
+| Layer | What it does | Key components | Status |
+|---|---|---|---|
+| **L7: TUI Screens** | User-facing dashboards and views | Ratatui apps in tmux panes: sidebar, dashboard, search, reviews, history | <Badge status="planned" /> |
+| **L6: Shell Integration** | Developer-facing shell conveniences | carapace completions, starship prompt, shell hooks, nvim-cmp | <Badge status="stable" /> |
+| **L5: Quality Gates** | Automated review before human sees results | AMQ review_request/review_response, cross-model review, convergence detection, lint gate | <Badge status="dev" /> |
+| **L4: Work Planning** | Task decomposition and agent orchestration | shaping-skills, kanban-md, dfs CLI + daemon, jj workspace isolation, A/B comparison | <Badge status="dev" /> |
+| **L3: Agent Middleware** | Unified LLM interface and agent runtime | pi-ai (20+ providers + local), pi-mono RPC (JSON/stdio), TypeScript extensions | <Badge status="dev" /> |
+| **L2: Message Bus + Storage** | Persistent state and inter-agent messaging | AMQ (Maildir queue), libSQL (FTS5/BM25, WAL mode), dfs daemon bridge | <Badge status="stable" /> / <Badge status="dev" /> |
+| **L1: Block Capture** | Structured command history | Shell hooks → JSONL → dfs daemon → libSQL, optional tmux capture-pane | <Badge status="stable" /> |
+| **L0: Terminal + Multiplexer** | Rendering and session management | Ghostty (GPU rendering, OSC 133) + tmux (sessions, panes, layouts) | <Badge status="stable" /> |
+
+## Protocol Contracts
+
+Each layer boundary is a protocol contract. Swapping a component means implementing that contract — nothing else in the stack changes.
+
+| Boundary | Protocol | Current Implementation | Could Swap To |
+|---|---|---|---|
+| L0 | PTY byte stream + tmux CLI | Ghostty + tmux | Any terminal + any multiplexer |
+| L0 → L1 | Shell hook JSONL events | Shell hooks → dfs daemon | Any structured event emitter |
+| L1 → L2 | `CommandBlock` JSON objects via SQL inserts | dfs daemon → libSQL | Any SQL database with the schema |
+| L2 (AMQ ↔ libSQL) | Daemon watches AMQ Maildir via `notify`, writes projections to libSQL | dfs daemon | Any queue with JSON+MD message format |
+| L2 → L3 | `fs.watch()` on inbox + `amq` CLI | AMQ → pi-mono extensions | Unix sockets, Redis streams, custom queue |
+| L3 → L4 | pi-mono RPC protocol (JSON over stdio) | pi-mono → Orchestrator CLI | Claude Code SDK, OpenCode ACP, any JSON-RPC agent |
+| L4 → L5 | AMQ `review_request`/`review_response` | Orchestrator → review-loop.ts | Any agent speaking AMQ message schema |
+| L5 → L6 | Shell environment variables, hook functions | Quality gates → shell | — |
+| L6 → L7 | libSQL queries, AMQ status polling, tmux CLI | Shell/data → TUI screens | — |
+| Work Planning → L4 | Markdown files with YAML frontmatter in `.shaped/` and `kanban/` | shaping-skills + kanban-md | GitHub Issues + CLI, Linear export, plain TODO.md |
+| VCS | `jj workspace create` / `jj diff` / `jj squash` | jj workspaces | git worktrees |
+| AI agents | Terminal stdin/stdout + AMQ inbox | Claude Code, OpenCode, Codex CLI, Pi | Any agent that runs in a terminal |
+
+## Swappability
+
+The architecture is defined by the protocols between layers, not the implementations behind them. Every component is independently replaceable:
+
+| Layer | Contract | Current Implementation | Could Swap To |
+|---|---|---|---|
+| L0: Terminal | Renders PTY output, accepts keyboard input | Ghostty | Any terminal emulator |
+| L0: Multiplexer | CLI: `split-window`, `new-window`, `kill-pane`, `list-panes`, `capture-pane`, `select-layout` | tmux | Zellij, custom PTY manager |
+| L1: Block Capture | Shell hooks emit JSONL → daemon writes to DB | Shell hooks + dfs daemon | Any structured event pipeline |
+| L2: Storage | SQL schema: `command_blocks`, `agent_messages`, `reviews` + FTS5 index | libSQL (WAL mode) | Postgres, plain SQLite |
+| L2: Message Bus | `send(msg) → id`, `list(filters) → msgs[]`, `drain() → msgs[]`, `reply(id, msg)` | AMQ (Maildir) | Unix sockets, Redis, custom |
+| L3: Agent Runtime | `{type: "prompt", content} → {type: "response", content, tool_calls}` over JSON/stdio | pi-mono RPC | Claude Code SDK, OpenCode ACP |
+| L3: Model API | Unified provider abstraction supporting API + local models | pi-ai | Vercel AI SDK, LiteLLM, direct API calls |
+| L4: Work Planning | Structured markdown files with YAML frontmatter in `.shaped/` and `kanban/` | shaping-skills + kanban-md | GitHub Issues CLI, Linear, plain TODO.md |
+| L7: TUI Screens | Ratatui apps reading libSQL + AMQ + tmux state | Ratatui in tmux panes | Any TUI framework, web UI, native app |
+
+## Key Insight
+
+Warp spent roughly 1,000,000 lines of Rust building a custom GPU renderer, custom UI framework, and custom text editor from scratch. Every one of those components now exists as a mature, composable library or tool. defuse is approximately 5,000 lines of glue connecting approximately 2,000,000 lines of existing, community-maintained tools. The Ratatui TUI screens are the largest single surface area — sidebar, dashboard, search, and review views — because they are the user-facing layer. Everything below is existing tools wired together by protocol.

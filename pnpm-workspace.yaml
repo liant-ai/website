@@ -1,0 +1,9 @@
+packages:
+  - "docs-site"
+
+ignoredBuiltDependencies:
+  - esbuild
+  - sharp
+  - simple-git-hooks
+  - unrs-resolver
+  - workerd

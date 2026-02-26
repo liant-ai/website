@@ -24,13 +24,13 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: open-next-build
+          name: vinext-build
 
       - name: Extract build output
-        run: tar -xzf open-next-build.tar.gz
+        run: tar -xzf vinext-build.tar.gz
 
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm opennextjs-cloudflare deploy
+        run: pnpm deploy
