@@ -1,0 +1,30 @@
+---
+title: Documentation
+description: Documentation for defuse, a composable terminal platform for AI-assisted development.
+---
+
+import { Badge } from '@site/src/components/Badge';
+
+defuse (`dfs`) is a composable terminal platform for AI-assisted development. It orchestrates agents, captures searchable command history, and runs cross-model review loops inside Ghostty + tmux.
+
+Features are tagged with their release status: <Badge status="stable">Stable</Badge> <Badge status="dev">In Development</Badge> <Badge status="planned">Planned</Badge>
+
+## Quick Links
+
+- **[Getting Started](/docs/getting-started)** — Install, configure, and start using defuse
+- **[Architecture](/docs/concepts/architecture)** — The eight-layer protocol-first stack
+- **[Components](/docs/concepts/components)** — Tools and services that make up defuse
+- **[Workflows](/docs/concepts/workflows)** — Common workflows and message flows
+- **[CLI Reference](/docs/reference/cli)** — Complete `dfs` command reference
+- **[Configuration](/docs/reference/config)** — `config.toml` reference
+
+## Architecture Overview
+
+defuse composes approximately 2M lines of existing tools — Ghostty, tmux, libSQL, pi-mono, jj, fzf, starship, and others — through protocol contracts. Custom glue totals around 5K lines. Every component is independently swappable: if a better terminal emulator ships tomorrow, only the adapter changes.
+
+## Key Concepts
+
+- **Protocol-first**: every layer boundary is a contract
+- **Terminal-native**: built on existing terminal conventions
+- **Composable**: best-in-class tools, thin glue
+- **File-first**: Maildir messages, TOML config, Markdown kanban — all git-trackable

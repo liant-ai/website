@@ -1,0 +1,166 @@
+---
+title: Configuration Reference
+description: Complete config.toml reference.
+---
+
+## Overview
+
+Defuse is configured via `config.toml` files. A global file holds user-wide defaults and API credentials. Each project can optionally add a `.defuse/config.toml` to override specific settings — without touching the keys that should stay private.
+
+## Directory Layout
+
+**Global (per-user):**
+
+```
+~/.config/defuse/
+├── config.toml          # all settings
+└── themes/              # optional custom themes
+
+~/.local/share/defuse/
+├── repo/                # git clone (managed by dfs update)
+└── db/
+    └── global.db        # libSQL database
+```
+
+**Per-project:**
+
+```
+.defuse/
+├── config.toml          # project overrides
+└── layout.yaml          # tmux window layout
+```
+
+## Config Resolution
+
+Project `.defuse/config.toml` overrides global `~/.config/defuse/config.toml`. Keys not present in the project file fall through to the global defaults.
+
+API keys live only in the global config — never in a per-project file that might be committed to version control.
+
+## Global Config
+
+Full annotated example showing every available key:
+
+```toml
+[terminal]
+shell = "/bin/zsh"           # Shell binary for tmux panes
+sidebar_width = 30           # Agent status sidebar width in columns
+sidebar_position = "left"    # "left" or "right"
+
+[vcs]
+default = "jj"               # "jj" (with git fallback) or "git"
+auto_snapshot = true          # Snapshot before agent operations
+
+[notifications]
+review_complete = true        # Notify when review loop finishes
+agent_error = true            # Notify on agent errors
+budget_warning = true         # Notify when approaching cost limit
+
+[cost_limits]
+daily_budget = 50.00          # Max spend per day (USD)
+monthly_budget = 500.00       # Max spend per month (USD)
+alert_at_percent = 80         # Budget warning threshold (%)
+
+[providers.anthropic]
+api_key = "${ANTHROPIC_API_KEY}"   # env var reference
+
+[providers.openai]
+api_key = "${OPENAI_API_KEY}"
+
+# [providers.ollama]
+# endpoint = "http://localhost:11434"
+
+[aliases]
+writer = "claude-sonnet-4"
+reviewer = "gpt-5-codex"
+fast = "claude-haiku-4"
+# local = "ollama/llama3.2"
+```
+
+### [terminal]
+
+Terminal and UI settings.
+
+| Key | Default | Description |
+|---|---|---|
+| `shell` | `"/bin/zsh"` | Shell binary for tmux panes |
+| `sidebar_width` | `30` | Sidebar width in columns |
+| `sidebar_position` | `"left"` | `"left"` or `"right"` |
+
+### [vcs]
+
+Version control backend settings.
+
+| Key | Default | Description |
+|---|---|---|
+| `default` | `"jj"` | VCS backend: `"jj"` (with git fallback) or `"git"` |
+| `auto_snapshot` | `true` | Snapshot before agent operations |
+
+### [notifications]
+
+Notification preferences.
+
+| Key | Default | Description |
+|---|---|---|
+| `review_complete` | `true` | Notify when review loop finishes |
+| `agent_error` | `true` | Notify on agent errors |
+| `budget_warning` | `true` | Notify at budget threshold |
+
+### [cost_limits]
+
+Spending controls to cap API costs.
+
+| Key | Default | Description |
+|---|---|---|
+| `daily_budget` | `50.00` | Max daily spend (USD) |
+| `monthly_budget` | `500.00` | Max monthly spend (USD) |
+| `alert_at_percent` | `80` | Warning threshold (%) |
+
+### [providers]
+
+LLM provider credentials. API key values support `${ENV_VAR}` references that are expanded at runtime. You can also export variables directly in your shell instead of setting them here.
+
+Supported providers: `anthropic`, `openai`, `ollama`.
+
+For Ollama, set `endpoint` rather than `api_key`:
+
+```toml
+[providers.ollama]
+endpoint = "http://localhost:11434"
+```
+
+### [aliases]
+
+Short names that map to full model IDs. Define an alias once in your global config and every project uses it. Change the alias to update all projects at once.
+
+```toml
+[aliases]
+writer = "claude-sonnet-4"
+reviewer = "gpt-5-codex"
+fast = "claude-haiku-4"
+# local = "ollama/llama3.2"
+```
+
+## Per-project Config
+
+A project's `.defuse/config.toml` only needs to contain keys that differ from the global config. API keys must not appear here.
+
+Example that tightens the daily budget and switches the `writer` alias for a specific project:
+
+```toml
+[cost_limits]
+daily_budget = 10.00
+
+[aliases]
+writer = "claude-haiku-4"
+```
+
+## Environment Variables
+
+As an alternative to storing API keys in the config file, export them directly in your shell:
+
+```zsh
+export ANTHROPIC_API_KEY="sk-ant-..."
+export OPENAI_API_KEY="sk-..."
+```
+
+Environment variables take effect immediately without restarting Defuse. They also avoid writing credentials to disk at all, which some security policies require.

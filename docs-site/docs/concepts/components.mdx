@@ -1,0 +1,131 @@
+---
+title: Components
+description: The tools and services that make up defuse.
+---
+
+import { Badge } from '@site/src/components/Badge';
+
+## Terminal Emulation — Ghostty
+
+<Badge status="stable" />
+
+**What it does**: renders terminal output with GPU acceleration. Provides the display layer for all tmux panes, TUI screens, and agent workspaces.
+
+**Why it was chosen**: Metal/OpenGL rendering at >144 FPS. Ships built-in shell integration that emits OSC 133 markers for prompt navigation in bash, zsh, fish, elvish, and nushell. Supports synchronized output (DEC mode 2026) for flicker-free TUI rendering. Supports the Kitty Graphics Protocol for image display.
+
+**Protocol it speaks**: PTY byte stream. Ghostty receives raw terminal output from tmux and renders it. OSC 133 markers are emitted by shell hooks and consumed by Ghostty and tmux for `next-prompt`/`previous-prompt` navigation.
+
+Ghostty does not manage sessions, layouts, or pane splits — tmux owns all of that.
+
+## Multiplexing — tmux
+
+<Badge status="stable" />
+
+**What it does**: manages sessions, windows, and panes. The orchestrator creates and destroys panes via tmux CLI commands to host agent workspaces, TUI screens, and developer terminals.
+
+**Why it was chosen**: every major AI coding tool (Claude Code, Codex CLI, OpenCode) already runs in tmux panes. tmux's stable object references (`$N`, `@N`, `%N`) make panes addressable across the daemon's lifetime. Layout persistence via tmuxp/tmuxinator YAML files defines per-project window configurations.
+
+**Protocol it speaks**: tmux CLI commands — `split-window`, `new-window`, `kill-pane`, `list-panes`, `capture-pane`, `select-layout`. All interaction is via CLI, not tmux control mode.
+
+Key limitation: tmux does not support the Kitty keyboard protocol, which breaks Shift+Enter for multiline input in some agent CLIs. Zellij is the future alternative if this becomes blocking.
+
+## Block Capture — Shell Hooks
+
+<Badge status="stable" />
+
+**What it does**: captures every command you run as a structured event. Shell `precmd`/`preexec` hooks write a JSONL event for each command, including command text, exit code, CWD, duration, git branch, and session ID.
+
+**Why it was chosen**: the shell already has all this data as structured values. Intercepting OSC 133 markers from a PTY byte stream means reverse-engineering structured data from escape sequences — approximately 1,000 lines of Rust for a VT state machine versus approximately 150 lines of shell hooks.
+
+**Protocol it speaks**: JSONL written to `~/.local/share/defuse/blocks.jsonl`. Each event is a `CommandBlock`:
+
+```json
+{
+  "command": "cargo test",
+  "output": "...",
+  "exitCode": 0,
+  "cwd": "/project",
+  "duration_ms": 4200,
+  "timestamp": "2026-02-21T14:30:00Z",
+  "hostname": "dev-machine",
+  "git_branch": "feature-auth",
+  "session_id": "tmux:$1:%3"
+}
+```
+
+The dfs daemon tails this file and ingests events into libSQL.
+
+## Storage and Search — libSQL
+
+<Badge status="stable" />
+
+**What it does**: stores all command blocks, agent messages, and reviews. Serves full-text search over command output and agent conversations via FTS5/BM25 indexing.
+
+**Why it was chosen**: libSQL is a Turso fork of SQLite with concurrent writer support via WAL mode. Single `.db` file per project. All SQLite tooling works. Sub-millisecond queries at expected data volumes. Native Rust bindings.
+
+**Protocol it speaks**: SQL. The dfs daemon is the sole write authority — all mutations flow through daemon actors. TUI screens and the CLI read directly from libSQL without going through the daemon.
+
+Tables: `command_blocks`, `agent_messages`, `reviews`, plus FTS5 virtual tables for keyword search.
+
+## Message Bus — AMQ
+
+<Badge status="dev" />
+
+**What it does**: routes messages between agents using a file-based Maildir queue. Agents send, receive, and reply to structured messages without any shared infrastructure.
+
+**Why it was chosen**: files are the universal Unix primitive. They persist across crashes, work over NFS, are human-readable, and compose with every Unix tool. No connection strings, no schema migrations, no daemon required.
+
+**Protocol it speaks**: AMQ Maildir — each agent has an inbox and outbox at `.agent-mail/agents/{name}/`. Messages use atomic `rename()` from `tmp/` to `new/` — no partial writes ever. Message format is JSON frontmatter + Markdown body.
+
+**Message kinds**: `review_request`, `review_response`, `todo`, `status`, `question`, `answer`, `decision`, `brainstorm`, `compact`
+
+**Priority levels**: `urgent` (interrupt), `normal` (queue), `low` (batch)
+
+**CLI**: `amq init`, `amq send`, `amq list`, `amq drain`, `amq reply`
+
+## Agent Middleware — pi-mono and pi-ai
+
+<Badge status="dev" />
+
+**What it does**: provides a unified interface to 20+ LLM providers, a structured agent runtime with RPC control, and a TypeScript extension system for customizing agent behavior.
+
+**Why it was chosen**: pi-ai abstracts four underlying API protocols (OpenAI Completions, OpenAI Responses, Anthropic Messages, Google Generative AI) behind a single interface. Supports API providers and local model servers (Ollama, vLLM, LM Studio, llama.cpp) transparently. pi-mono's RPC mode gives the orchestrator structured control over running agents.
+
+**Protocol it speaks**:
+
+- **pi-mono RPC**: line-delimited JSON over stdin/stdout. Commands: `prompt`, `abort`, `get_state`, `get_messages`, `get_models`, `bash`, `compact`, `set_model`, `fork`
+- **Extension events**: `session_start`, `tool_call`, `tool_result`, `before_agent_start`, `terminal_input`, `session_shutdown`, `agent_end`
+- **pi-ai model API**: unified `{role, content}` messages → streaming token events, regardless of provider
+
+Extensions are TypeScript modules in `~/.pi/agent/extensions/` or `.pi/extensions/`. They are hot-reloadable via `jiti` — no compilation step.
+
+**Model routing**: the `[routing]` section of `config.toml` maps process types to model aliases — `writer`, `reviewer`, `child`, `compactor`, `orchestrator`. A review loop can use Claude Sonnet as writer and a local Llama model via Ollama as reviewer with the same extension code.
+
+## The dfs Daemon
+
+<Badge status="stable" />
+
+**What it does**: the single long-running background process that owns all libSQL writes. It ingests events from shell hooks, AMQ Maildir, and kanban-md, and coordinates agent lifecycle.
+
+**Why it matters**: the daemon is the write authority. No other process writes to the database. TUI screens and the CLI read libSQL directly — the daemon is never in the read path.
+
+**Actor inventory**:
+
+| Actor | Role | Status |
+|---|---|---|
+| BlockIngester | Tails JSONL, writes CommandBlocks to libSQL | <Badge status="stable" /> |
+| MessageBridge | Watches AMQ Maildir, writes Message projections to libSQL | <Badge status="dev" /> |
+| KanbanBridge | Watches `kanban/` directory, writes Task projections to libSQL | <Badge status="dev" /> |
+| Supervisor | Polls pi-mono RPC `get_state` for active agents, detects hangs, cleans stale panes | <Badge status="planned" /> |
+| MergeCoordinator | Sequences workspace merges, one at a time, with rollback | <Badge status="planned" /> |
+| Dispatcher | Reads kanban board, matches ready tasks to available capacity, launches agents | <Badge status="dev" /> |
+
+All actors communicate via `mpsc` channels. No shared mutable state.
+
+**Lifecycle**:
+
+- Auto-starts on first `dfs` command that needs it, detected via Unix socket at `~/.local/share/defuse/daemon.sock`
+- `dfs daemon start` / `dfs daemon stop` / `dfs daemon status` / `dfs daemon restart`
+- On crash: replays incomplete operations from a crash journal, resumes JSONL tailing from last recorded file offset
+
+**Protocol it speaks**: JSON-over-newline via Unix domain socket for CLI ↔ daemon status queries and dispatch requests.
